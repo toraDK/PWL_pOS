@@ -1,0 +1,56 @@
+@extends('layouts.template')
+
+@section('content')
+<div class="card card-outline card-primary">
+    <div class="card-header">
+        <h3 class="card-title">{{ $page->title }}</h3>
+        <div class="card-tools">
+            <a class="btn btn-sm btn-primary mt-1" href="{{ url('kategori/create') }}">Tambah</a>
+        </div>
+    </div>
+    <div class="card-body">
+        @if (session('success'))
+            <div class="alert alert-success">{{ session('success') }}</div>
+        @endif
+        @if (session('error'))
+            <div class="alert alert-danger">{{ session('error') }}</div>
+        @endif
+        <div class="row">
+        </div>
+        <table class="table table-bordered table-striped table-hover table-sm" id="table_kategori">
+        <thead>
+            <tr>
+                <th>kategori_ID</th>
+                <th>kategori kode</th>
+                <th>Nama kategori</th>
+                <th>Aksi</th>
+            </tr>
+        </thead>
+        </table>
+    </div>
+</div>
+@endsection
+
+@push('css')
+@endpush
+
+@push('js')
+    <script>
+        $(document).ready(function() {
+            var dataUser = $("#table_kategori").DataTable({
+                serverSide: true,
+                ajax: {
+                    "url": "{{ url('kategori/list') }}",
+                    "dataType": "json",
+                    "type": "POST"
+                },
+                columns: [
+                    { data: 'kategori_id', name: 'kategori_id' },
+                    {data: 'kategori_kode', name: 'kategori_kode'},
+                    {data: 'kategori_nama', name: 'kategori_nama'},
+                    {data: 'aksi', name: 'aksi', orderable: false, searchable: false}
+                ]
+            });
+        });
+    </script>
+@endpush
