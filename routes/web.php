@@ -5,6 +5,7 @@ use App\Http\Controllers\LevelController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\WelcomeController;
 use App\Http\Controllers\BarangController;
+use App\Http\Controllers\SupplierController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -52,12 +53,23 @@ Route::group(['prefix' => 'kategori'], function(){
 });
 
 Route::group(['prefix' => 'barang'], function(){
-    Route::get('/', [barangController::class, 'index']);
-    Route::post('/list', [barangController::class, 'list']);
-    Route::get('/create', [barangController::class, 'create']);
-    Route::post('/', [barangController::class, 'store']);
-    Route::get('/{id}', [barangController::class, 'show']);
-    Route::get('/{id}/edit', [barangController::class, 'edit']);
-    Route::put('/{id}', [barangController::class, 'update']);
-    Route::delete('/{id}', [barangController::class, 'destroy']);
+    Route::get('/', [BarangController::class, 'index']);
+    Route::post('/list', [BarangController::class, 'list']);
+    Route::get('/create', [BarangController::class, 'create']);
+    Route::post('/', [BarangController::class, 'store']);
+    Route::get('/{id}', [BarangController::class, 'show']);
+    Route::get('/{id}/edit', [BarangController::class, 'edit']);
+    Route::put('/{id}', [BarangController::class, 'update']);
+    Route::delete('/{id}', [BarangController::class, 'destroy']);
+});
+
+Route::group(['prefix' => 'supplier'], function(){
+    Route::get('/', [SupplierController::class, 'index']);
+    Route::post('/list', [SupplierController::class, 'list']);
+    Route::get('/create', [SupplierController::class, 'create']);
+    Route::post('/', [SupplierController::class, 'store']);
+    Route::get('/{id}', [SupplierController::class, 'show']);
+    Route::get('/{id}/edit', [SupplierController::class, 'edit']);
+    Route::put('/{id}', [SupplierController::class, 'update']);
+    Route::delete('/{id}', [SupplierController::class, 'destroy']);
 });

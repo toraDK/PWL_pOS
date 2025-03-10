@@ -45,7 +45,7 @@
             <p>Data User</p>
           </a>
         </li>
-        <li class="nav-header">Data Barang</li>
+        <li class="nav-header">Data Master</li>
         <li class="nav-item">
           <a href="{{ url('/kategori') }}" class="nav-link" {{ ($activeMenu == 'kategori') ? 'active' : '' }}>
             <i class="nav-icon far fa-bookmark"></i>
@@ -56,6 +56,12 @@
           <a href="{{ url('/barang') }}" class="nav-link" {{ ($activeMenu == 'barang') ? 'active' : '' }}>
             <i class="nav-icon far fa-list-alt"></i>
             <p>Data Barang</p>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="{{ url('/supplier') }}" class="nav-link" {{ ($activeMenu == 'supplier') ? 'active' : '' }}>
+            <i class="nav-icon far fa-house fa-solid"></i>
+            <p>Data Supplier</p>
           </a>
         </li>
         <li class="nav-header">Data Transaksi</li>
