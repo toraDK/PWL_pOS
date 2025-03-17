@@ -52,7 +52,7 @@
                     type: form.method,
                     data: $(form).serialize(),
                     success: function(response) {
-                        if(response.status){
+                        if (response.status) {
                             $('#myModal').modal('hide');
                             Swal.fire({
                                 icon: 'success',
@@ -60,33 +60,38 @@
                                 text: response.message
                             });
                             dataLevel.ajax.reload();
-                        }else{
-                            $('.error-text').text('');
-                            $.each(response.msgField, function(prefix, val) {
-                                $('#error-'+prefix).text(val[0]);
-                            });
+                        } else {
                             Swal.fire({
                                 icon: 'error',
                                 title: 'Terjadi Kesalahan',
                                 text: response.message
                             });
                         }
+                    },
+                    error: function(xhr) {
+                        let errorMessage = xhr.responseJSON?.message || 'Terjadi kesalahan saat menghapus data.';
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error!',
+                            text: errorMessage
+                        });
                     }
                 });
                 return false;
             },
             errorElement: 'span',
-            errorPlacement: function (error, element) {
+            errorPlacement: function(error, element) {
                 error.addClass('invalid-feedback');
                 element.closest('.form-group').append(error);
             },
-            highlight: function (element, errorClass, validClass) {
+            highlight: function(element, errorClass, validClass) {
                 $(element).addClass('is-invalid');
             },
-            unhighlight: function (element, errorClass, validClass) {
+            unhighlight: function(element, errorClass, validClass) {
                 $(element).removeClass('is-invalid');
             }
         });
     });
+
 </script>
 @endempty

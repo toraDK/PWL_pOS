@@ -255,28 +255,41 @@ class BarangController extends Controller
     }
     
     public function confirm_ajax(string $id){
-        $barang = barangModel::find($id);
+        $barang = BarangModel::find($id);
     
         return view('barang.confirm_ajax', ['barang' => $barang]);
     }
     
     public function delete_ajax(Request $request, $id){
-        // cek apakah request dari ajax
         if ($request->ajax() || $request->wantsJson()) {
-            $barang = barangModel::find($id);
-            if ($barang) {
+            try {
+                $barang = BarangModel::find($id);
+                if (!$barang) {
+                    return response()->json([
+                        'status' => false,
+                        'message' => 'Data tidak ditemukan.'
+                    ]);
+                }
+
                 $barang->delete();
+
                 return response()->json([
                     'status' => true,
-                    'message' => 'Data berhasil dihapus'
+                    'message' => 'Data berhasil dihapus.'
                 ]);
-            } else {
+            } catch (\Illuminate\Database\QueryException $e) {
                 return response()->json([
                     'status' => false,
-                    'message' => 'Data tidak ditemukan'
-                ]);
+                    'message' => 'Gagal menghapus data. Data masih digunakan di tabel lain.'
+                ], 500);
+            } catch (\Exception $e) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Terjadi kesalahan: ' . $e->getMessage()
+                ], 500);
             }
         }
+
         return redirect('/');
     }
 }
