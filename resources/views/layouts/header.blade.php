@@ -131,5 +131,9 @@
           <i class="fas fa-th-large"></i>
         </a>
       </li>
+      <li class="nav-item">
+        <a href="{{ url('logout') }}" class="btn btn-warning justify-content-center text-light">Logout</a>
+      </li>
+
     </ul>
   </nav>
