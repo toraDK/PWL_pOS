@@ -3,6 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Login Pengguna</title>
 
     <!-- Google Font: Source Sans Pro -->
@@ -56,12 +57,15 @@
                     <!-- /.col -->
                     </div>
                 </form>
+                <p>tidak punya akun? <a onclick="modalAction('{{ url('/register') }}')" style="color: blue; cursor: pointer; text-decoration: none;">register</a></p>
             </div>
             <!-- /.card-body -->
         </div>
         <!-- /.card -->
     </div>
     <!-- /.login-box -->
+
+    <div id="myModal" class="modal fade animate shake" tabindex="-1" role="dialog" databackdrop="static" data-keyboard="false" data-width="75%" aria-hidden="true"></div>
 
 <!-- jQuery -->
 <script src="{{ asset('adminlte/plugins/jquery/jquery.min.js') }}"></script>
@@ -81,6 +85,12 @@
             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
         }
     });
+
+    function modalAction(url = ''){
+        $('#myModal').load(url,function(){
+            $('#myModal').modal('show');
+        });
+    }
 
     $(document).ready(function() {
         $("#form-login").validate({
