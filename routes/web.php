@@ -8,6 +8,7 @@ use App\Http\Controllers\BarangController;
 use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\AuthController;
 use Illuminate\Support\Facades\Route;
+use Monolog\Level;
 
 /*
 |--------------------------------------------------------------------------
@@ -54,7 +55,8 @@ Route::middleware(['auth'])->group(function () { // artinya semua route di dalam
             Route::delete('/{id}', [LevelController::class, 'destroy']);
             Route::get('/import', [LevelController::class, 'import']); // ajax form upload excel
             Route::post('/import_ajax', [LevelController::class, 'import_ajax']); // ajax import excel
-            Route::get('/export_excel', [LevelController::class, 'export_excel']); // export excel 
+            Route::get('/export_excel', [LevelController::class, 'export_excel']); // export excel
+            Route::get('/export_pdf', [LevelController::class, 'export_pdf']); // export excel
         });
 
         Route::group(['prefix' => 'barang'], function(){
@@ -81,7 +83,8 @@ Route::middleware(['auth'])->group(function () { // artinya semua route di dalam
             Route::delete('/{id}', [UserController::class, 'destroy']);
             Route::get('/import', [UserController::class, 'import']); // ajax form upload excel
             Route::post('/import_ajax', [UserController::class, 'import_ajax']); // ajax import excel
-            Route::get('/export_excel', [UserController::class, 'export_excel']); // export excel 
+            Route::get('/export_excel', [UserController::class, 'export_excel']); // export excel
+            Route::get('/export_pdf', [UserController::class, 'export_pdf']); // export excel
         });
     
         Route::group(['prefix' => 'kategori'], function(){
@@ -100,7 +103,8 @@ Route::middleware(['auth'])->group(function () { // artinya semua route di dalam
             Route::delete('/{id}', [kategoriController::class, 'destroy']);
             Route::get('/import', [kategoriController::class, 'import']); // ajax form upload excel
             Route::post('/import_ajax', [kategoriController::class, 'import_ajax']); // ajax import excel
-            Route::get('/export_excel', [kategoriController::class, 'export_excel']); // export excel 
+            Route::get('/export_excel', [kategoriController::class, 'export_excel']); // export excel
+            Route::get('/export_pdf', [kategoriController::class, 'export_pdf']); // export excel
         });
     
         Route::group(['prefix' => 'supplier'], function(){
@@ -120,7 +124,8 @@ Route::middleware(['auth'])->group(function () { // artinya semua route di dalam
             Route::delete('/{id}', [SupplierController::class, 'destroy']);
             Route::get('/import', [SupplierController::class, 'import']); // ajax form upload excel
             Route::post('/import_ajax', [SupplierController::class, 'import_ajax']); // ajax import excel
-            Route::get('/export_excel', [SupplierController::class, 'export_excel']); // export excel 
+            Route::get('/export_excel', [SupplierController::class, 'export_excel']); // export excel
+            Route::get('/export_pdf', [SupplierController::class, 'export_pdf']); // export excel
         });
     });
 
