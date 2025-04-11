@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\LevelModel;
 use App\Models\UserModel;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
 
 class AuthController extends Controller
 {
@@ -45,37 +46,51 @@ class AuthController extends Controller
     }
     
     public function store_ajax(Request $request)
-    {
-        // cek apakah request berupa ajax
-        if ($request->ajax() || $request->wantsJson()) {
-            $rules = [
-                'level_id' => 'required|integer',
-                'username' => 'required|string|min:3|unique:m_user,username',
-                'nama' => 'required|string|max:100',
-                'password' => 'required|min:6',
-            ];
-    
-            // use Illuminate\Support\Facades\Validator;
-            $validator = Validator::make($request->all(), $rules);
-    
-            if ($validator->fails()) {
-                return response()->json([
-                    'status' => false, // response status, false: error/gagal, true: berhasil
-                    'message' => 'Validasi Gagal',
-                    'msgField' => $validator->errors(), // pesan error validasi
-                ]);
-            }
-    
-            UserModel::create($request->all());
+{
+    if ($request->ajax() || $request->wantsJson()) {
+        $rules = [
+            'level_id' => 'required|integer',
+            'username' => 'required|string|min:3|unique:m_user,username',
+            'nama' => 'required|string|max:100',
+            'photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'password' => 'required|min:6',
+        ];
+
+        $validator = Validator::make($request->all(), $rules);
+
+        if ($validator->fails()) {
             return response()->json([
-                'status' => true,
-                'message' => 'Data user berhasil disimpan',
-                'redirect' => url('/login'),
+                'status' => false,
+                'message' => 'Validasi Gagal',
+                'msgField' => $validator->errors(),
             ]);
         }
-    
-        return redirect('/');
+
+        // Inisialisasi nama file foto
+        $photoName = null;
+
+        if ($request->hasFile('photo')) {
+            $photo = $request->file('photo');
+            $photoName = Str::uuid() . '.' . $photo->getClientOriginalExtension(); // Nama unik dengan UUID
+            $photo->move(public_path('photos'), $photoName);
+        }
+
+        UserModel::create([
+            'level_id' => $request->level_id,
+            'username' => $request->username,
+            'nama' => $request->nama,
+            'photo' => $photoName, // Hanya menyimpan nama file
+            'password' => bcrypt($request->password),
+        ]);
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Data user berhasil disimpan',
+        ]);
     }
+
+    return redirect('/');
+}
 
     public function logout(Request $request){
         Auth::logout();

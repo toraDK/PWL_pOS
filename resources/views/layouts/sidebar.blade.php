@@ -1,13 +1,19 @@
 <div class="sidebar">
     <!-- Sidebar user (optional) -->
+    @auth
     <div class="user-panel mt-3 pb-3 mb-3 d-flex">
-      <div class="image">
-        <img src="{{ asset('adminlte/dist/img/user2-160x160.jpg') }}" class="img-circle elevation-2" alt="User Image">
-      </div>
-      <div class="info">
-        <a href="#" class="d-block">Alexander Pierce</a>
-      </div>
-    </div>
+        <div class="image">
+            @if (!empty(Auth::user()->photo))
+                <img src="{{ asset('photos/' . Auth::user()->photo) }}" class="img-circle elevation-2" alt="User Image">
+            @else
+                <img src="{{ asset('adminlte/dist/img/user2-160x160.jpg') }}" class="img-circle elevation-2" alt="User Image">
+            @endif
+        </div>
+        <div class="info">
+            <a href="#" class="d-block">{{ Auth::user()->nama }}</a>
+        </div>
+        </div>
+    @endauth
 
     <!-- SidebarSearch Form -->
     <div class="form-inline">

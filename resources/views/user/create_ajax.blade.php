@@ -28,8 +28,13 @@
             <small id="error-nama" class="error-text form-text text-danger"></small>
         </div>
         <div class="form-group">
+            <label>photo profil</label>
+            <input type="file" name="photo" id="photo" class="form-control">
+            <small id="error-photo" class="error-text form-text text-danger"></small>
+        </div>
+        <div class="form-group">
             <label>Password</label>
-            <input value="" type="password" name="password" id="password" class="formcontrol" required>
+            <input value="" type="password" name="password" id="password" class="form-control" required>
             <small id="error-password" class="error-text form-text text-danger"></small>
         </div>
     </div>
@@ -42,53 +47,48 @@
 </form>
 <script>
     $(document).ready(function() {
-        $("#form-tambah").validate({
-            rules: {
-                level_id: {required: true, number: true},
-                username: {required: true, minlength: 3, maxlength: 20},
-                nama: {required: true, minlength: 3, maxlength: 100},
-                password: {required: true, minlength: 6, maxlength: 20}
-            },
-            submitHandler: function(form) {
-                $.ajax({
-                    url: form.action,
-                    type: form.method,
-                    data: $(form).serialize(),
-                    success: function(response) {
-                        if(response.status){
-                            $('#myModal').modal('hide');
-                            Swal.fire({
-                                icon: 'success',
-                                title: 'Berhasil',
-                                text: response.message
-                            });
-                            dataUser.ajax.reload();
-                        }else{
-                            $('.error-text').text('');
-                            $.each(response.msgField, function(prefix, val) {
-                                $('#error-'+prefix).text(val[0]);
-                            });
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Terjadi Kesalahan',
-                                text: response.message
-                            });
-                        }
+        $("#form-tambah").submit(function (e) {
+            e.preventDefault(); // Mencegah reload halaman
+
+            var formData = new FormData(this); // Gunakan FormData untuk file upload
+
+            $.ajax({
+                url: $(this).attr("action"),
+                type: "POST",
+                data: formData,
+                contentType: false,
+                processData: false,
+                beforeSend: function () {
+                    $(".error-text").text(""); // Bersihkan error
+                },
+                success: function (response) {
+                    if (response.status) {
+                        $('#myModal').modal('hide');
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Berhasil',
+                            text: response.message
+                        });
+                        dataUser.ajax.reload();
+                    } else {
+                        $.each(response.msgField, function (prefix, val) {
+                            $('#error-' + prefix).text(val[0]);
+                        });
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Terjadi Kesalahan',
+                            text: response.message
+                        });
                     }
-                });
-                return false;
-            },
-            errorElement: 'span',
-            errorPlacement: function (error, element) {
-                error.addClass('invalid-feedback');
-                element.closest('.form-group').append(error);
-            },
-            highlight: function (element, errorClass, validClass) {
-                $(element).addClass('is-invalid');
-            },
-            unhighlight: function (element, errorClass, validClass) {
-                $(element).removeClass('is-invalid');
-            }
+                },
+                error: function (xhr) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Oops...',
+                        text: 'Terjadi kesalahan pada server!'
+                    });
+                }
+            });
         });
     });
 </script>

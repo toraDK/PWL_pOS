@@ -31,7 +31,7 @@ class PenjualanDetailSeeder extends Seeder
                     'detail_id' => $detail_id++,
                     'penjualan_id' => $i,
                     'barang_id' => $barang_id,
-                    'harga  ' => $barang->harga_jual,
+                    'harga' => $barang->harga_jual,
                     'jumlah' => rand(1, 5),
                     'created_at' => now(),
                     'updated_at' => now(),
