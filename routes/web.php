@@ -7,6 +7,7 @@ use App\Http\Controllers\WelcomeController;
 use App\Http\Controllers\BarangController;
 use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\StokController;
 use Illuminate\Support\Facades\Route;
 use Monolog\Level;
 
@@ -126,6 +127,11 @@ Route::middleware(['auth'])->group(function () { // artinya semua route di dalam
             Route::post('/import_ajax', [SupplierController::class, 'import_ajax']); // ajax import excel
             Route::get('/export_excel', [SupplierController::class, 'export_excel']); // export excel
             Route::get('/export_pdf', [SupplierController::class, 'export_pdf']); // export excel
+        });
+
+        Route::group(['prefix' => 'stok'], function(){
+            Route::get('/', [StokController::class, 'index']);
+            Route::post('/list', [StokController::class, 'list']);
         });
     });
 
