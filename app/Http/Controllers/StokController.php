@@ -8,6 +8,8 @@ use App\Models\SupplierModel;
 use App\Models\UserModel;
 use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
+use Carbon\Carbon;
 
 class StokController extends Controller
 {
@@ -74,5 +76,51 @@ class StokController extends Controller
             })
             ->rawColumns(['aksi'])
             ->make(true);
+    }
+
+    public function create_ajax(){
+        $supplier = SupplierModel::select('supplier_id', 'supplier_nama')->get();
+        $barang = BarangModel::select('barang_id', 'barang_nama')->get();
+        $user = auth()->user();
+
+        return view('stok.create_ajax', compact('supplier', 'barang', 'user'));
+    }
+    
+    public function store_ajax(Request $request)
+    {
+        try {
+        $validated = $request->validate([
+            'supplier_id' => 'required|exists:m_supplier,supplier_id',
+            'barang_id' => 'required|exists:m_barang,barang_id',
+            'user_id' => 'required|exists:m_user,user_id',
+            'stok_tanggal' => 'required|date',
+            'stok_jumlah' => 'required|numeric|min:1',
+        ]);
+
+        // Ambil tanggal dari form dan gabungkan dengan waktu saat ini
+        $tanggal = $request->input('stok_tanggal'); // Misalnya: '2025-04-20'
+        $tanggalDenganWaktu = Carbon::parse($tanggal)->setTime(now()->hour, now()->minute, now()->second);
+        
+        // Ganti nilai stok_tanggal dengan tanggal dan waktu
+        $validated['stok_tanggal'] = $tanggalDenganWaktu;
+
+        StokModel::create($validated);
+
+        return response()->json([
+            'status' => true,  // Sesuaikan dengan struktur respons yang diharapkan frontend
+            'message' => 'Data stok berhasil disimpan!'
+        ]);
+    } catch (\Illuminate\Validation\ValidationException $e) {
+        return response()->json([
+            'status' => false,
+            'message' => 'Validasi Gagal',
+            'msgField' => $e->errors()
+        ], 422);
+    } catch (\Exception $e) {
+        return response()->json([
+            'status' => false,
+            'message' => 'Gagal menyimpan data: ' . $e->getMessage()
+        ], 500);
+    }
     }
 }

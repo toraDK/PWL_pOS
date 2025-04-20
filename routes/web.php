@@ -132,6 +132,8 @@ Route::middleware(['auth'])->group(function () { // artinya semua route di dalam
         Route::group(['prefix' => 'stok'], function(){
             Route::get('/', [StokController::class, 'index']);
             Route::post('/list', [StokController::class, 'list']);
+            Route::get('/create_ajax', [StokController::class, 'create_ajax']);
+            Route::post('/ajax', [StokController::class, 'store_ajax']);
         });
     });
 
