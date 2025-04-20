@@ -71,7 +71,6 @@ class StokController extends Controller
             ->addColumn('aksi', function ($stok) {
                 $btn = '<a href="' . url('/stok/' . $stok->stok_id) . '" class="btn btn-info btn-sm">Detail</a> ';
                 $btn .= '<button onclick="modalAction(\''.url('/stok/' . $stok->stok_id .'/edit_ajax').'\')" class="btn btn-warning btn-sm">Edit</button> ';
-                $btn .= '<button onclick="modalAction(\''.url('/stok/' . $stok->stok_id .'/delete_ajax').'\')" class="btn btn-danger btn-sm">Hapus</button> ';
                 return $btn;
             })
             ->rawColumns(['aksi'])
@@ -89,38 +88,88 @@ class StokController extends Controller
     public function store_ajax(Request $request)
     {
         try {
-        $validated = $request->validate([
-            'supplier_id' => 'required|exists:m_supplier,supplier_id',
-            'barang_id' => 'required|exists:m_barang,barang_id',
-            'user_id' => 'required|exists:m_user,user_id',
-            'stok_tanggal' => 'required|date',
-            'stok_jumlah' => 'required|numeric|min:1',
-        ]);
+            $validated = $request->validate([
+                'supplier_id' => 'required|exists:m_supplier,supplier_id',
+                'barang_id' => 'required|exists:m_barang,barang_id',
+                'user_id' => 'required|exists:m_user,user_id',
+                'stok_tanggal' => 'required|date',
+                'stok_jumlah' => 'required|numeric|min:1',
+            ]);
 
-        // Ambil tanggal dari form dan gabungkan dengan waktu saat ini
-        $tanggal = $request->input('stok_tanggal'); // Misalnya: '2025-04-20'
-        $tanggalDenganWaktu = Carbon::parse($tanggal)->setTime(now()->hour, now()->minute, now()->second);
-        
-        // Ganti nilai stok_tanggal dengan tanggal dan waktu
-        $validated['stok_tanggal'] = $tanggalDenganWaktu;
+            // Ambil tanggal dari form dan gabungkan dengan waktu saat ini
+            $tanggal = $request->input('stok_tanggal'); // Misalnya: '2025-04-20'
+            $tanggalDenganWaktu = Carbon::parse($tanggal)->setTime(now()->hour, now()->minute, now()->second);
+            
+            // Ganti nilai stok_tanggal dengan tanggal dan waktu
+            $validated['stok_tanggal'] = $tanggalDenganWaktu;
 
-        StokModel::create($validated);
+            StokModel::create($validated);
 
-        return response()->json([
-            'status' => true,  // Sesuaikan dengan struktur respons yang diharapkan frontend
-            'message' => 'Data stok berhasil disimpan!'
-        ]);
-    } catch (\Illuminate\Validation\ValidationException $e) {
-        return response()->json([
-            'status' => false,
-            'message' => 'Validasi Gagal',
-            'msgField' => $e->errors()
-        ], 422);
-    } catch (\Exception $e) {
-        return response()->json([
-            'status' => false,
-            'message' => 'Gagal menyimpan data: ' . $e->getMessage()
-        ], 500);
+            return response()->json([
+                'status' => true,  // Sesuaikan dengan struktur respons yang diharapkan frontend
+                'message' => 'Data stok berhasil disimpan!'
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Validasi Gagal',
+                'msgField' => $e->errors()
+            ], 422);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Gagal menyimpan data: ' . $e->getMessage()
+            ], 500);
+        }
     }
+
+    public function edit_ajax(string $id){
+        $stok = StokModel::find($id);
+        
+        $supplier = SupplierModel::find($stok->supplier_id);
+        $barang = BarangModel::find($stok->barang_id);
+        $user = UserModel::find($stok->user_id);
+
+        $stok->stok_tanggal_formatted = $stok->stok_tanggal ? Carbon::parse($stok->stok_tanggal)->format('Y-m-d') : '';
+    
+        return view('stok.edit_ajax', ['stok' => $stok, 'supplier' => $supplier, 'barang' => $barang, 'user' => $user]);
+    }
+
+    public function update_ajax(Request $request, string $id)
+    {
+        try {
+            $stok = StokModel::find($id);
+
+            if (!$stok) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Data stok tidak ditemukan.'
+                ], 404);
+            }
+
+            // Validasi input
+            $validated = $request->validate([ 'stok_jumlah' => ['required', 'numeric', 'min:' . $stok->stok_jumlah ]]);
+
+            // Update hanya kolom stok_jumlah
+            $stok->update([
+                'stok_jumlah' => $validated['stok_jumlah'],
+            ]);
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Data stok berhasil diperbarui!'
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Validasi Gagal',
+                'msgField' => $e->errors()
+            ], 422);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Gagal memperbarui data: ' . $e->getMessage()
+            ], 500);
+        }
     }
 }
