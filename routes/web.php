@@ -127,7 +127,7 @@ Route::middleware(['auth'])->group(function () { // artinya semua route di dalam
             Route::get('/import', [SupplierController::class, 'import']); // ajax form upload excel
             Route::post('/import_ajax', [SupplierController::class, 'import_ajax']); // ajax import excel
             Route::get('/export_excel', [SupplierController::class, 'export_excel']); // export excel
-            Route::get('/export_pdf', [SupplierController::class, 'export_pdf']); // export excel
+            Route::get('/export_pdf', [SupplierController::class, 'export_pdf']); // export pdf
         });
 
         Route::group(['prefix' => 'stok'], function(){
@@ -138,6 +138,10 @@ Route::middleware(['auth'])->group(function () { // artinya semua route di dalam
             Route::get('/{id}/show_ajax', [StokController::class, 'show_ajax']);
             Route::get('/{id}/edit_ajax', [StokController::class, 'edit_ajax']);
             Route::put('/{id}/update_ajax', [StokController::class, 'update_ajax']);
+            Route::get('/import', [StokController::class, 'import']); // ajax form upload excel
+            Route::post('/import_ajax', [StokController::class, 'import_ajax']); // ajax import excel
+            Route::get('/export_excel', [StokController::class, 'export_excel']); // export excel
+            Route::get('/export_pdf', [StokController::class, 'export_pdf']); // export pdf
         });
     });
 
