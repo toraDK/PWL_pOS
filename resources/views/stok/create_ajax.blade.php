@@ -36,7 +36,7 @@
 
             <div class="form-group">
                 <label for="stok_tanggal">Tanggal Stok</label>
-                <input type="date" name="stok_tanggal" id="stok_tanggal" class="form-control" required>
+                <input type="date" name="stok_tanggal" id="stok_tanggal" class="form-control" value="{{ $tanggalHariIni }}" required>
             </div>
 
             <div class="form-group">

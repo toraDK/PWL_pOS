@@ -88,7 +88,9 @@ class StokController extends Controller
         $barang = BarangModel::select('barang_id', 'barang_nama')->get();
         $user = auth()->user();
 
-        return view('stok.create_ajax', compact('supplier', 'barang', 'user'));
+        $tanggalHariIni = now()->format('Y-m-d');
+
+        return view('stok.create_ajax', compact('supplier', 'barang', 'user', 'tanggalHariIni'));
     }
     
     public function store_ajax(Request $request)
