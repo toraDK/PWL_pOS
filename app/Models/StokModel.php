@@ -14,6 +14,10 @@ class StokModel extends Model
 
     protected $fillable = ['supplier_id', 'barang_id', 'user_id', 'stok_tanggal', 'stok_jumlah'];
 
+    protected $casts = [
+        'stok_tanggal' => 'datetime',
+    ];
+
     public function Supplier(): BelongsTo{
         return $this->BelongsTo(SupplierModel::class, 'supplier_id', 'supplier_id');
     }

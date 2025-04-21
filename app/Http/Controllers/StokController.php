@@ -69,7 +69,7 @@ class StokController extends Controller
         return DataTables::of($stoks)
             ->addIndexColumn()
             ->addColumn('aksi', function ($stok) {
-                $btn = '<a href="' . url('/stok/' . $stok->stok_id) . '" class="btn btn-info btn-sm">Detail</a> ';
+                $btn = '<button onclick="modalAction(\'' . url('/stok/' . $stok->stok_id . '/show_ajax') . '\')" class="btn btn-info btn-sm">Detail</button> ';
                 $btn .= '<button onclick="modalAction(\''.url('/stok/' . $stok->stok_id .'/edit_ajax').'\')" class="btn btn-warning btn-sm">Edit</button> ';
                 return $btn;
             })
@@ -171,5 +171,12 @@ class StokController extends Controller
                 'message' => 'Gagal memperbarui data: ' . $e->getMessage()
             ], 500);
         }
+    }
+
+    public function show_ajax(string $id)
+    {
+        $stok = StokModel::with('supplier', 'user', 'barang')->find($id);
+
+        return view('stok.show_ajax', compact('stok'));
     }
 }
