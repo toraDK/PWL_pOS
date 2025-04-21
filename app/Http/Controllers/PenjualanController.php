@@ -4,8 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Models\PenjualanModel;
 use App\Models\UserModel;
+use App\Models\BarangModel;
+use App\Models\StokModel;
+use Illuminate\Support\Facades\DB;
+use App\Models\PenjualanDetailModel;
 use Illuminate\Http\Request;
 use Yajra\DataTables\Facades\DataTables;
+use Illuminate\Support\Facades\Validator;
 
 class PenjualanController extends Controller
 {
@@ -75,4 +80,110 @@ class PenjualanController extends Controller
 
         return view('penjualan.show_ajax', compact('penjualan'));
     }
+
+    public function create_ajax(){
+        $barang = BarangModel::select('barang_id', 'barang_nama', 'harga_jual')->get();
+        $user = auth()->user();
+
+        $lastPenjualan = PenjualanModel::select('penjualan_kode')
+        ->orderBy('penjualan_id', 'desc')
+        ->first();
+
+        $kode = 1; // Default kode jika belum ada data
+        if ($lastPenjualan) {
+            $lastKode = (int) $lastPenjualan->penjualan_kode; // Konversi ke integer
+            $kode = $lastKode + 1; // Tambah 1 untuk kode berikutnya
+        }
+
+        return view('penjualan.create_ajax', compact('barang', 'user', 'kode'));
+    }
+    
+
+public function store_ajax(Request $request)
+{
+    try {
+        $validator = Validator::make($request->all(), [
+            'user_id' => 'required|exists:m_user,user_id',
+            'pembeli' => 'required|string|max:255',
+            'penjualan_kode' => 'required|numeric|unique:t_penjualan,penjualan_kode',
+            'barang_id.*' => 'required|exists:m_barang,barang_id',
+            'harga.*' => 'required|numeric|min:0',
+            'jumlah.*' => 'required|numeric|min:1',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Validasi gagal.',
+                'msgField' => $validator->errors()->toArray(),
+            ]);
+        }
+
+        // Gunakan transaksi untuk memastikan konsistensi
+        return DB::transaction(function () use ($request) {
+            // Simpan data penjualan
+            $penjualan = new PenjualanModel();
+            $penjualan->user_id = $request->user_id;
+            $penjualan->pembeli = $request->pembeli;
+            $penjualan->penjualan_kode = $request->penjualan_kode;
+            $penjualan->penjualan_tanggal = now();
+            $penjualan->save();
+
+            // Ambil data barang yang dibeli
+            $barang_ids = $request->barang_id;
+            $hargas = $request->harga;
+            $jumlahs = $request->jumlah;
+
+            // Validasi stok sebelum menyimpan detail penjualan
+            foreach ($barang_ids as $index => $barang_id) {
+                $jumlah = $jumlahs[$index];
+
+                // Ambil stok terbaru untuk barang ini
+                $stok = StokModel::where('barang_id', $barang_id)
+                    ->orderBy('stok_tanggal', 'desc')
+                    ->first();
+
+                if (!$stok) {
+                    throw new \Exception("Stok untuk barang dengan ID {$barang_id} tidak ditemukan.");
+                }
+
+                if ($stok->stok_jumlah < $jumlah) {
+                    throw new \Exception("Stok untuk barang dengan ID {$barang_id} tidak mencukupi. Stok tersedia: {$stok->stok_jumlah}, dibutuhkan: {$jumlah}.");
+                }
+            }
+
+            // Simpan detail penjualan dan kurangi stok
+            for ($i = 0; $i < count($barang_ids); $i++) {
+                $barang_id = $barang_ids[$i];
+                $jumlah = $jumlahs[$i];
+
+                // Simpan detail penjualan
+                $detail = new PenjualanDetailModel();
+                $detail->penjualan_id = $penjualan->penjualan_id;
+                $detail->barang_id = $barang_id;
+                $detail->harga = $hargas[$i];
+                $detail->jumlah = $jumlah;
+                $detail->save();
+
+                // Kurangi stok
+                $stok = StokModel::where('barang_id', $barang_id)
+                    ->orderBy('stok_tanggal', 'desc')
+                    ->first();
+
+                $stok->stok_jumlah -= $jumlah;
+                $stok->save();
+            }
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Data penjualan berhasil disimpan.',
+            ]);
+        });
+    } catch (\Exception $e) {
+        return response()->json([
+            'status' => false,
+            'message' => 'Terjadi kesalahan saat menyimpan data: ' . $e->getMessage(),
+        ]);
+    }
+}
 }
